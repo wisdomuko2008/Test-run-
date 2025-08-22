@@ -255,7 +255,7 @@
     <a href="#cbt">CBT Simulator</a>
     <a href="#contact">Contact</a>
     <a href="#location">Locate us</a>
-    <a href="#download App">Download App</a>
+    <a href="#download-App">Download App</a>
   </nav>
 </header>
 
@@ -334,12 +334,6 @@
   </div>
 </section>
 
-<!-- Education Updates Section -->
-<section id="education-updates" class="education-updates">
-  <h2>📢 Latest Education Updates</h2>
-  <div id="feed"></div>
-</section>
-
 <section id="location" style="padding: 2rem; background-color: #f9f9f9;">
   <h2 style="text-align: center; font-size: 2rem; margin-bottom: 1rem;">Our Location</h2>
   <iframe
@@ -365,6 +359,11 @@
   <p>Get our mobile app for Android. iOS version coming soon</p>
   <a class="button" href="https://www.dropbox.com/scl/fi/mmavwavmyg4kuc3uzy209/_Flexi_Tutors_19009924.apk?rlkey=y2rouc1j8t9xa5rz8t1lre0e2&st=ntnd6hny&dl=0">Download App</a>
 </div>
+
+<section id="education-updates" class="education-updates">
+  <h2>📢 Latest Education Updates</h2>
+  <div id="feed"></div>
+</section>
 
 <section class="contact-section" id="contact">
   <h2>Contact Us</h2>
@@ -417,85 +416,43 @@
     });
   });
 
-  // Education Updates Script
-  const feedUrl = 'https://rss.app/feeds/evOlTRc3J6RybpsW.xml';
-  const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(feedUrl);
+  const feedUrl ="https://api.rss2json.com/v1/api.json?rss_url=https://rss.app/feeds/EbQFInAV6zTvXvgD.xml";
 
-  fetch(proxyUrl)
-    .then(response => response.json())
-    .then(data => {
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(data.contents, "text/xml");
-      const items = xml.querySelectorAll("item");
-      const feedContainer = document.getElementById("feed");
 
-      if (!items.length) {
-        feedContainer.innerText = "No updates available right now.";
-        return;
-      }
+  function loadEducationUpdates() {
+    fetch(feedUrl)
+      .then(response => response.json())
+      .then(data => {
+        const feedContainer = document.getElementById("feed");
+        feedContainer.innerHTML = "";
 
-      items.forEach((item, i) => {
-        if (i >= 5) return; // Limit to 5 items
-        const title = item.querySelector("title").textContent;
-        const link = item.querySelector("link").textContent;
-        const pubDate = new Date(item.querySelector("pubDate").textContent).toLocaleDateString();
+        if (!data.items || data.items.length === 0) {
+          feedContainer.innerText = "No updates available right now.";
+          return;
+        }
 
-        const itemDiv = document.createElement("div");
-        itemDiv.classList.add("item");
+        data.items.slice(0, 5).forEach(item => {
+          const itemDiv = document.createElement("div");
+          itemDiv.classList.add("item");
 
-        itemDiv.innerHTML = `
-          <a href="${link}" target="_blank" class="title">${title}</a>
-          <div class="pubDate">${pubDate}</div>
-        `;
+          itemDiv.innerHTML = `
+            <a href="${item.link}" target="_blank" class="title">${item.title}</a>
+            <div class="pubDate">${new Date(item.pubDate).toLocaleDateString()}</div>
+          `;
 
-        feedContainer.appendChild(itemDiv);
+          feedContainer.appendChild(itemDiv);
+        });
+      })
+      .catch(error => {
+        document.getElementById("feed").innerText = "Failed to load education updates.";
+        console.error("Error loading feed:", error);
       });
-    })
-    .catch(error => {
-      document.getElementById("feed").innerText = "Failed to load education updates.";
-      console.error("Error loading feed:", error);
-    });
+  }
+
+  loadEducationUpdates();
+  setInterval(loadEducationUpdates, 300000);
 </script>
-<script>
-  const feedUrl = 'https://rss.app/feeds/evOlTRc3J6RybpsW.xml';
-  const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(feedUrl);
-
-  fetch(proxyUrl)
-    .then(response => response.json())
-    .then(data => {
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(data.contents, "text/xml");
-      const items = xml.querySelectorAll("item");
-      const feedContainer = document.getElementById("feed");
-
-      if (!items.length) {
-        feedContainer.innerText = "No updates available right now.";
-        return;
-      }
-
-      let count = 0;
-      items.forEach(item => {
-        if (count >= 5) return; // Show only top 5
-        const title = item.querySelector("title").textContent;
-        const link = item.querySelector("link").textContent;
-        const pubDate = new Date(item.querySelector("pubDate").textContent).toLocaleDateString();
-
-        const itemDiv = document.createElement("div");
-        itemDiv.classList.add("item");
-
-        itemDiv.innerHTML = `
-          <a href="${link}" target="_blank" class="title">${title}</a>
-          <div class="pubDate">${pubDate}</div>
-        `;
-
-        feedContainer.appendChild(itemDiv);
-        count++;
-      });
-    })
-    .catch(error => {
-      document.getElementById("feed").innerText = "Failed to load education updates.";
-      console.error("Error loading feed:", error);
-    });
 </script>
+
 </body>
 </html>
